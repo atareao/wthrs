@@ -1,5 +1,12 @@
 mod models;
 
+use models::{
+    args::Cli,
+    openmeteo::OpenMeteoClient,
+};
+use clap::Parser;
+use tokio;
+
 use std::{
     error::Error,
     io::{stdout, Stdout},
@@ -27,7 +34,7 @@ type Frame<'a> = ratatui::Frame<'a, CrosstermBackend<Stdout>>;
 type Terminal = ratatui::Terminal<CrosstermBackend<Stdout>>;
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
-fn main() -> Result<()> {
+fn main2() -> Result<()> {
     let mut terminal = setup_terminal()?;
     let result = run(&mut terminal);
     restore_terminal(terminal)?;
@@ -252,4 +259,16 @@ fn render_nested_blocks(paragraph: &Paragraph, frame: &mut Frame, area: Rect) {
     let inner = outer_block.inner(area);
     frame.render_widget(outer_block, area);
     frame.render_widget(paragraph.clone().block(inner_block), inner);
+}
+
+#[tokio::main]
+async fn main(){
+    let cli = Cli::parse();
+    println!("{:?}", cli);
+    let lon = cli.longitude;
+    let lat = cli.latitude;
+    let tz = cli.timezone;
+    let omc = OpenMeteoClient::new(lon, lat, tz);
+    let result = omc.get().await.unwrap();
+    println!("Result: {:?}", result);
 }
