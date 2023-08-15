@@ -4,7 +4,6 @@ use std::io;
 use ratatui::backend::CrosstermBackend;
 use ratatui::Terminal;
 use clap::Parser;
-use tokio;
 use std::error::Error;
 
 use models::{
@@ -19,8 +18,7 @@ use models::{
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 
-#[tokio::main]
-async fn main() -> Result<()>{
+fn main() -> Result<()>{
     let cli = Cli::parse();
     println!("{:?}", cli);
     let lat = cli.latitude;
@@ -40,7 +38,7 @@ async fn main() -> Result<()>{
     // Start the main loop.
     while app.running {
         // Render the user interface.
-        tui.draw(&mut app)?;
+        tui.draw(&mut app);
         // Handle events.
         match tui.events.next()? {
             Event::Tick => app.tick(),
