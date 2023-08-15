@@ -1,13 +1,19 @@
 mod models;
 
-use models::{
-    args::Cli,
-    terminal::TUI,
-};
-use clap::Parser;
+use std::io;
+use ratatui::backend::CrosstermBackend;
 use ratatui::Terminal;
+use clap::Parser;
 use tokio;
 use std::error::Error;
+
+use models::{
+    args::Cli,
+    app::{App, AppResult},
+    event::{Event, EventHandler},
+    handler::handle_key_events,
+    tui::Tui,
+};
 
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
@@ -17,15 +23,34 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 async fn main() -> Result<()>{
     let cli = Cli::parse();
     println!("{:?}", cli);
-    let lon = cli.longitude;
     let lat = cli.latitude;
+    let lon = cli.longitude;
     let tz = cli.timezone;
-    let mut terminal = Terminal::setup()?;
-    let result = terminal.run(lon, lat, tz).await;
-    terminal.restore()?;
 
-    if let Err(err) = result {
-        eprintln!("{err:?}");
+    // Create applicaiton
+    let mut app = App::new(&lat, &lon, &tz);
+
+    // Init the terminal user interface
+    let backend = CrosstermBackend::new(io::stderr());
+    let terminal = Terminal::new(backend)?;
+    let events = EventHandler::new(250);
+    let mut tui = Tui::new(terminal, events);
+    tui.init()?;
+
+    // Start the main loop.
+    while app.running {
+        // Render the user interface.
+        tui.draw(&mut app)?;
+        // Handle events.
+        match tui.events.next()? {
+            Event::Tick => app.tick(),
+            Event::Key(key_event) => handle_key_events(key_event, &mut app)?,
+            Event::Mouse(_) => {}
+            Event::Resize(_, _) => {}
+        }
     }
+
+    // Exit the user interface.
+    tui.exit()?;
     Ok(())
 }
