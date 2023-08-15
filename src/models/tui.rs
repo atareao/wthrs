@@ -40,8 +40,9 @@ impl<B: Backend> Tui<B> {
     ///
     /// [`Draw`]: tui::Terminal::draw
     /// [`rendering`]: crate::ui:render
-    pub fn draw(&mut self, app: &mut App) -> AppResult<()> {
-        self.terminal.draw(|frame| ui::render(app, frame))?;
+    pub fn draw(&mut self, app: &mut App<'_>) -> AppResult<()> {
+        //self.terminal.draw(|frame| async move {ui::render(app, frame).await})?;
+        self.terminal.draw(|frame| {ui::render(app, frame)})?;
         Ok(())
     }
 
