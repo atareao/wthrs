@@ -3,6 +3,7 @@ use anyhow::Error;
 
 const URL: &'static str = "https://api.open-meteo.com";
 
+#[derive(Debug)]
 pub struct OpenMeteoClient<'a>{
     latitude: &'a str,
     longitude: &'a str,
