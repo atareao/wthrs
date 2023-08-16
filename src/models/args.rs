@@ -15,8 +15,3 @@ pub struct Cli {
     #[arg(short = 'z', long, value_name = "Timezone", default_value = "Europe/Madrid")]
     pub timezone: String,
 }
-
-fn default_timezone() -> String{
-    "Europe/Madrid".to_string()
-}
-
