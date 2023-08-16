@@ -8,7 +8,7 @@ use std::error::Error;
 
 use models::{
     args::Cli,
-    app::{App, AppResult},
+    app::App,
     event::{Event, EventHandler},
     handler::handle_key_events,
     tui::Tui,
@@ -38,7 +38,7 @@ fn main() -> Result<()>{
     // Start the main loop.
     while app.running {
         // Render the user interface.
-        tui.draw(&mut app);
+        let _ = tui.draw(&mut app);
         // Handle events.
         match tui.events.next()? {
             Event::Tick => app.tick(),
