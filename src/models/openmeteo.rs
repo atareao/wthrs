@@ -28,8 +28,8 @@ impl<'a> OpenMeteoClient<'a>{
         }
     }
 
-    pub fn get_data(&self) -> Option<Value>{
-        self.data.clone()
+    pub fn get_data(&self) -> &Option<Value>{
+        &self.data
     }
 
     fn get(&self) -> Result<Value, Error>{
