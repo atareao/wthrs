@@ -8,6 +8,7 @@ pub struct OpenMeteoClient<'a>{
     latitude: &'a str,
     longitude: &'a str,
     timezone: &'a str,
+    data: Option<Value>,
 }
 
 impl<'a> OpenMeteoClient<'a>{
@@ -16,9 +17,22 @@ impl<'a> OpenMeteoClient<'a>{
             latitude,
             longitude,
             timezone,
+            data: None,
         }
     }
-    pub fn get(&self) -> Result<Value, Error>{
+
+    pub fn refresh(&mut self){
+        match self.get(){
+            Ok(value) => self.data = Some(value),
+            Err(_) => self.data = None,
+        }
+    }
+
+    pub fn get_data(&self) -> Option<Value>{
+        self.data.clone()
+    }
+
+    fn get(&self) -> Result<Value, Error>{
         let url = format!("{}/v1/forecast", URL);
         // https://api.open-meteo.com/v1/forecast?latitude=39.3626&longitude=-0.4117&hourly=temperature_2m,relativehumidity_2m,dewpoint_2m,apparent_temperature,precipitation_probability,weathercode,pressure_msl,surface_pressure,cloudcover,visibility,evapotranspiration,windspeed_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max&current_weather=true&timezone=Europe%2FBerlin
         let params = [

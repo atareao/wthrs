@@ -25,7 +25,6 @@ impl<'a> App<'a> {
             running: true,
             counter: 0,
             omc: OpenMeteoClient::new(latitude, longitude, timezone),
-
         }
     }
 
@@ -35,6 +34,10 @@ impl<'a> App<'a> {
     /// Set running to false to quit the application.
     pub fn quit(&mut self) {
         self.running = false;
+    }
+
+    pub fn refresh(&mut self){
+        self.omc.refresh();
     }
 
     pub fn increment_counter(&mut self) {

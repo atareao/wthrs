@@ -14,6 +14,9 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
                 app.quit();
             }
         }
+        KeyCode::Char('r') | KeyCode::Char('R') => {
+            app.refresh();
+        }
         // Counter handlers
         KeyCode::Right => {
             app.increment_counter();
