@@ -26,7 +26,7 @@ pub fn render<B: Backend>(app: &mut App<'_>, frame: &mut Frame<'_, B>) {
     render_borders(&paragraph, Borders::RIGHT, frame, layout[1][1]);
     render_borders(&paragraph, Borders::TOP, frame, layout[2][0]);
     render_borders(&paragraph, Borders::BOTTOM, frame, layout[2][1]);
-    render_table(frame, layout[3][0]);
+    render_table(frame, layout[3][0], app);
 }
 
 /// Calculate the layout of the UI elements.
@@ -74,19 +74,23 @@ fn render_borders<B: Backend>(paragraph: &Paragraph, border: Borders, frame: &mu
     frame.render_widget(paragraph.clone().block(block), area);
 }
 
-fn render_table<B: Backend>(frame: &mut Frame<'_, B>, area: Rect) {
+fn render_table<B: Backend>(frame: &mut Frame<'_, B>, area: Rect, app: &App) {
+    let current_weather = app.omc.get_current_weather().unwrap();
+    let temperature = current_weather.get_temperature().to_string();
+    let windspeed = current_weather.get_winspeed().to_string();
     let table = Table::new(vec![
+        Row::new(vec!["Temperature", &temperature]),
+        Row::new(vec!["Wind speed", &windspeed]),
         // Row can be created from simple strings.
-        Row::new(vec!["Row11", "Row12", "Row13"]),
+        Row::new(vec!["Row11", "Row13"]),
         // You can style the entire row.
-        Row::new(vec!["Row21", "Row22", "Row23"]).style(Style::default().fg(Color::Blue)),
+        Row::new(vec!["Row21", "Row23"]).style(Style::default().fg(Color::Blue)),
         // If you need more control over the styling you may need to create Cells directly
         Row::new(vec![
             Cell::from("Row31"),
-            Cell::from("Row32").style(Style::default().fg(Color::Yellow)),
             Cell::from(Line::from(vec![
                 Span::raw("Row"),
-                Span::styled("33", Style::default().fg(Color::Green))
+                Span::styled("32", Style::default().fg(Color::Green))
             ])),
         ]),
         // If a Row need to display some content over multiple lines, you just have to change
@@ -94,23 +98,15 @@ fn render_table<B: Backend>(frame: &mut Frame<'_, B>, area: Rect) {
         Row::new(vec![
             Cell::from("Row\n41"),
             Cell::from("Row\n42"),
-            Cell::from("Row\n43"),
         ]).height(2),
     ])
         // You can set the style of the entire Table.
         .style(Style::default().fg(Color::White))
         // It has an optional header, which is simply a Row always visible at the top.
-        .header(
-            Row::new(vec!["Col1", "Col2", "Col3"])
-                .style(Style::default().fg(Color::Yellow))
-                // If you want some space between the header and the rest of the rows, you can always
-                // specify some margin at the bottom.
-                .bottom_margin(1)
-        )
         // As any other widget, a Table can be wrapped in a Block.
         .block(Block::default().borders(Borders::ALL).title("Table"))
         // Columns widths are constrained in the same way as Layout...
-        .widths(&[Constraint::Length(5), Constraint::Length(5), Constraint::Length(10)])
+        .widths(&[Constraint::Length(20), Constraint::Length(5), Constraint::Length(10)])
         // ...and they can be separated by a fixed spacing.
         .column_spacing(1)
         // If you wish to highlight a row in any specific way when it is selected...
